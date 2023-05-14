@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8' />
+<title>Gore Street Property Prices</title>
+<meta name='viewport' content='width=device-width, initial-scale=1' />
+<script src='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js'></script>
+<link href='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css' rel='stylesheet' />
+<style>
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+#map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+}
+
+h1 {
+  font-size: 30px;
+  line-height: 30px;
+}
+
+h2 {
+  font-size: 14px;
+  line-height: 20px;
+  margin-bottom: 10px;
+}
+
+a {
+  text-decoration: none;
+  color: #2dc4b2;
+}
+
+#console {
+  position: absolute;
+  text-align: center;
+  width: 400px;
+  margin: 10px;
+  padding: 10px 20px;
+  background-color: white;
+}
+.session {
+  margin-bottom: 30px;
+}
+
+.row {
+  height: 12px;
+  width: 100%;
+}
+
+.colors {
+  background: linear-gradient(to right, #5ddfd0, #f3ad59, #9ae085, #8b88b6);
+  margin-bottom: 5px;
+}
+
+.label {
+  width: 23%;
+  display: inline-block;
+  text-align: center;
+}
+.title {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.8);
+  margin-right: 550px;
+  font-family: Arial, sans-serif;
+  overflow: auto;
+  border-radius: 3px;
+  top: 0;
+  height: 70px;
+  margin-top: 10px;
+  width: 350px;
+}
+.popupImage{
+	max-width: 200px;
+	max-height: 200px;
+	display: block; 
+	margin-left: auto; 
+	margin-right: auto;
+}
+.mapboxgl-popup-content {
+	background: #fff5f5;
+	box-shadow: 3px 3px 2px #8B5D33;
+	max-width: 300px;
+	text-align: center;
+	 
+}
+</style>
+</head>
+
+<body>
+<div id='map'></div>
+<div class='title' id='title'><h1> Gore Street Properties </h1></div>
+<div id='console'>
+  <h1>Year House Built</h1>
+  <div class='session'>
+  <h2>Decade</h2>
+  <div class='row colors'>
+  </div>
+  <div class='row labels'>
+    <div class='label'>1850-1900</div>
+    <div class='label'>1901-1950</div>
+    <div class='label'>1951-2000</div>
+    <div class='label'>2000+</div>
+  </div>
+</div>
+
+</div>
+<script>
+mapboxgl.accessToken = 'pk.eyJ1Ijoia2NoYW4xMyIsImEiOiJja2ZsdnRjbnoweHVrMnhwYzU0d3lkamF2In0.InhrM23gnOU_qpLx32LXVw';
+
+const map = new mapboxgl.Map({
+  container: 'map', // container element id
+  style: 'mapbox://styles/kchan13/clhk9sgtf000701pw99ea6ubf',
+  center: [144.9819, -37.8055], // initial map center in [lon, lat]
+  zoom: 16.5
+});
+map.on('click', 'gore-street', (e) => {
+new mapboxgl.Popup()
+.setLngLat(e.lngLat)
+.setHTML('<h2 style = "text-transform:uppercase;">'+ e.features[0].properties.Address + '</h2>' + '<p>' + '<b>' + 'Year Built: '+ '</b>' + e.features[0].properties.Field4 + '<p>' + '<b>' + 'Land Size: ' + '</b>' + e.features[0].properties.Field5 + ' m' + '&#178;' + '       ' + '<b>' + 'Bedrooms: ' + '</b>' + e.features[0].properties.Field6 + '<p>' + '<b>' + 'Last Sold: ' + '</b>' + e.features[0].properties.Field7 + '        ' + '<b>' + 'Price Sold: ' + '</b>' + e.features[0].properties.Field8 + '<p>' + "<img src='" + e.features[0].properties.image + "'" + " class=popupImage " + "/>")
+.addTo(map);
+});
+
+// Add zoom and rotation controls to the map.
+map.addControl(new mapboxgl.NavigationControl());
+ 
+// Change the cursor to a pointer when
+// the mouse is over the states layer.
+map.on('mouseenter', 'gore-street', () => {
+map.getCanvas().style.cursor = 'pointer';
+});
+ 
+// Change the cursor back to a pointer
+// when it leaves the states layer.
+map.on('mouseleave', 'gore-street', () => {
+map.getCanvas().style.cursor = '';
+});
+</script>
+</body>
+</html>
