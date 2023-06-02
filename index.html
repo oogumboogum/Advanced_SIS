@@ -42,8 +42,8 @@ a {
 #console {
   position: fixed;
   bottom:0;
-  right:0;
-  float: right;
+  left:0;
+  float: center;
 
   width: 500px;
   margin: 10px;
@@ -72,19 +72,31 @@ a {
   text-align: center;
 }
 .title {
-  position: absolute;
+  position: fixed;
   text-align: center;
-  bottom: 0;
-  right: 0;
+  float:center;
   background: rgba(255, 255, 255, 0.8);
-  margin-right: 550px;
   font-family: Arial, sans-serif;
   overflow: auto;
   border-radius: 3px;
   top: 0;
   height: 70px;
-  margin-top: 10px;
-  width: 500px;
+  margin:auto;
+  width: 50%;
+  font-family: "Montserrat";
+}
+.title2 {
+	position: relative;
+  text-align: center;
+  float:right;
+  background: rgba(255, 255, 255, 0.8);
+  font-family: Arial, sans-serif;
+  overflow: auto;
+  border-radius: 3px;
+  top: 0;
+  height: 70px;
+  margin:auto;
+  width: 50%;
   font-family: "Montserrat";
 }
 .popupImage{
@@ -108,12 +120,89 @@ p {
   color: #302f2b;
   font-family: 'Montserrat', sans-serif;
 }
+#menu {
+background: #fff;
+position: absolute;
+z-index: 1;
+bottom: 20px;
+right: 10px;
+border-radius: 3px;
+width: 120px;
+border: 1px solid rgba(0, 0, 0, 0.4);
+font-family: 'Open Sans', sans-serif;
+}
+ 
+#menu a {
+font-size: 13px;
+color: #404040;
+display: block;
+margin: 0;
+padding: 0;
+padding: 10px;
+text-decoration: none;
+border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+text-align: center;
+}
+ 
+#menu a:last-child {
+border: none;
+}
+ 
+#menu a:hover {
+background-color: #f8f8f8;
+color: #404040;
+}
+ 
+#menu a.active {
+background-color: #3887be;
+color: #ffffff;
+}
+ 
+#menu a.active:hover {
+background: #3074a4;
 </style>
 </head>
 
 <body>
-<div id='map'></div>
+<style>
+body {
+overflow: hidden;
+}
+ 
+body * {
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+}
+ 
+.map {
+position: absolute;
+top: 0;
+bottom: 0;
+width: 100%;
+}
+</style>
+<!-- Load the `mapbox-gl-geocoder` plugin. -->
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css" type="text/css">
+
+
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.js"></script>
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.css" type="text/css">
+
+<div id="comparison-container">
+<div id="before" class="map"></div>
+<div id="after" class="map"></div>
 <div class='title' id='title'><h1> How Gentrified is the City of Yarra? </h1></div>
+<div class='title2' id='title2'><h1> Factors of Gentrification </h1></div>
+<nav id="menu"></nav>
+
+
+</div>
+
+
 <div id='console'>
   <h1>Gentrified Ranking</h1>
   <div class='session'>
@@ -131,37 +220,138 @@ p {
 	<div class='label'>8</div>
   </div>
 </div>
-
 </div>
+
 <script>
 mapboxgl.accessToken = 'pk.eyJ1Ijoia2NoYW4xMyIsImEiOiJja2ZsdnRjbnoweHVrMnhwYzU0d3lkamF2In0.InhrM23gnOU_qpLx32LXVw';
 
-const map = new mapboxgl.Map({
-  container: 'map', // container element id
+const beforeMap = new mapboxgl.Map({
+  container: 'before', // container element id
   style: 'mapbox://styles/kchan13/clicnq7d9000j01r784zyhuez',
   center: [145.0100, -37.8055], // initial map center in [lon, lat]
   zoom: 12
 });
-map.on('click', 'yarra', (e) => {
+
+const afterMap = new mapboxgl.Map({
+container: 'after',
+style: 'mapbox://styles/kchan13/clhk9sgtf000701pw99ea6ubf',
+center: [145.0100, -37.8055],
+'layout': {
+// Make the layer invisible by default.
+'visibility': 'none'},
+zoom: 12
+});
+
+beforeMap.on('click', 'yarra', (e) => {
 new mapboxgl.Popup()
 .setLngLat(e.lngLat)
 .setHTML('<h2 style = "text-transform:uppercase;">'+ e.features[0].properties.SAL_NAME21 + '</h2>' + '<p>' + e.features[0].properties.SAL_NAME21 +' has a population of ' + '<b>' + e.features[0].properties.Population + '</b>' + ' people. The median age is '+ '<b>' + e.features[0].properties.Age + '</b>' + ' and the median rent is $' + '<b>' + e.features[0].properties.Rent + '</b>' + "<img src='" + e.features[0].properties.Image + "'" + " class=popupImage " + "/>")
-.addTo(map);
+.addTo(beforeMap);
 });
-
+ 
+// A selector or reference to HTML element
+const container = '#comparison-container';
+ 
+const map = new mapboxgl.Compare(beforeMap, afterMap, container, {
+// Set this to enable comparing two maps by mouse movement:
+// mousemove: true
+});
 // Add zoom and rotation controls to the map.
-map.addControl(new mapboxgl.NavigationControl());
+beforeMap.addControl(new mapboxgl.NavigationControl());
+afterMap.addControl(new mapboxgl.NavigationControl());
  
 // Change the cursor to a pointer when
 // the mouse is over the city of yarra layer layer.
-map.on('mouseenter', 'yarra', () => {
-map.getCanvas().style.cursor = 'pointer';
+beforeMap.on('mouseenter', 'yarra', () => {
+beforeMap.getCanvas().style.cursor = 'pointer';
 });
  
 // Change the cursor back to a pointer
 // when it leaves the city of yarra layer layer.
-map.on('mouseleave', 'yarra', () => {
-map.getCanvas().style.cursor = 'default';
+beforeMap.on('mouseleave', 'yarra', () => {
+beforeMap.getCanvas().style.cursor = 'default';
+});
+// Change the cursor to a pointer when
+// the mouse is over the city of yarra layer layer.
+afterMap.on('mouseenter', 'yarra', () => {
+afterMap.getCanvas().style.cursor = 'pointer';
+});
+ 
+// Change the cursor back to a pointer
+// when it leaves the city of yarra layer layer.
+afterMap.on('mouseleave', 'yarra', () => {
+afterMap.getCanvas().style.cursor = 'default';
+});
+// Add the control to the map.
+beforeMap.addControl(
+new MapboxGeocoder({
+accessToken: mapboxgl.accessToken,
+mapboxgl: mapboxgl
+})
+);
+afterMap.addControl(
+new MapboxGeocoder({
+accessToken: mapboxgl.accessToken,
+mapboxgl: mapboxgl
+})
+);
+
+
+beforeMap.addControl(new mapboxgl.FullscreenControl());
+afterMap.addControl(new mapboxgl.FullscreenControl());
+
+// After the last frame rendered before the map enters an "idle" state.
+afterMap.on('idle', () => {
+// If these layers were not added to the map, abort
+if (!afterMap.getLayer('Cafes') || !afterMap.getLayer('Bars')|| !afterMap.getLayer('Airbnbs')|| !afterMap.getLayer('Open_Spaces')|| !afterMap.getLayer('PTV_Stops')|| !afterMap.getLayer('Year12_Completion_Over_Median')|| !afterMap.getLayer('Rent_Higher_Than_Median')|| !afterMap.getLayer('Income_Higher_Than_Median')) {
+return;
+}
+ 
+// Enumerate ids of the layers.
+const toggleableLayerIds = ['Cafes', 'Bars','Airbnbs','Open_Spaces','PTV_Stops','Year12_Completion_Over_Median','Rent_Higher_Than_Median','Income_Higher_Than_Median'];
+ 
+// Set up the corresponding toggle button for each layer.
+for (const id of toggleableLayerIds) {
+// Skip layers that already have a button set up.
+if (document.getElementById(id)) {
+continue;
+}
+ 
+// Create a link.
+const link = document.createElement('a');
+link.id = id;
+link.href = '#';
+link.textContent = id;
+link.className = 'active';
+ 
+// Show or hide layer when the toggle is clicked.
+link.onclick = function (e) {
+const clickedLayer = this.textContent;
+e.preventDefault();
+e.stopPropagation();
+ 
+const visibility = afterMap.getLayoutProperty(
+clickedLayer,
+'visibility'
+);
+ 
+// Toggle layer visibility by changing the layout object's visibility property.
+if (visibility === 'visible') {
+afterMap.setLayoutProperty(clickedLayer, 'visibility', 'none');
+this.className = '';
+} else {
+this.className = 'active';
+afterMap.setLayoutProperty(
+clickedLayer,
+'visibility',
+'visible'
+);
+}
+};
+ 
+const layers = document.getElementById('menu');
+layers.appendChild(link);
+}
 });
 </script>
 </body>
